@@ -1,8 +1,9 @@
 [package]
-name = "FoundryCLI"
+name = "foundry_cli"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 dialoguer = "0.11"
+dotenv = "0.15.0"
