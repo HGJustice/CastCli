@@ -14,7 +14,6 @@ fn main() {
 
     loop {
         let options = &["Deploy", "Read", "Write", "Quit"];
-
         let main_menu = Select::new()
             .with_prompt("Welcome to Foundry Wizard, Pick one of these options")
             .items(options)
@@ -60,18 +59,19 @@ fn main() {
                 println!("{}", String::from_utf8_lossy(&deploy_command.stderr));
             }
             1 => {
-                let command_varibles = write_or_read(false).unwrap();
+                let command_variables = write_or_read(false).unwrap();
+                let (param_types, user_values) = get_func_name_param(&command_variables).unwrap();
+
+                let signature = format!("{}({})({})", command_variables.function.function_name, param_types.join(","), command_variables.function.return_types.join(","));
+
+                let mut command_args = vec![String::from("call"), command_variables.contract_address, signature];
+                command_args.extend(user_values);
+                command_args.extend(["--rpc-url".to_string(), command_variables.rpc_url,]);
 
                 let read_command = Command::new("cast")
-                    .args([
-                        "call",
-                        &command_varibles.contract_address,
-                        &format!("{}()", command_varibles.function_name),
-                        "--rpc-url",
-                        &command_varibles.rpc_url,
-                    ])
-                    .output()
-                    .expect("Failed to execute command");
+                .args(&command_args)
+                .output()
+                .expect("Failed to execute command");
 
                 println!("{}", String::from_utf8_lossy(&read_command.stdout));
                 println!("{}", String::from_utf8_lossy(&read_command.stderr));
@@ -80,19 +80,9 @@ fn main() {
                 let command_variables = write_or_read(true).unwrap();
                 let private_key = read_env_file("PRIVATE_KEY").unwrap();
 
-                let mut param_types: Vec<String> = Vec::new();
-                let mut user_values: Vec<String> = Vec::new();
+                let (param_types, user_values) = get_func_name_param(&command_variables).unwrap();
 
-                for (param_name, param_type) in &command_variables.function_params {
-                    param_types.push(param_type.clone());
-                    let val = Input::new()
-                    .with_prompt(format!("Enter value for {} ({})", param_name, param_type))
-                    .interact_text()
-                    .unwrap();
-                    user_values.push(val);
-                }
-
-                let signature = format!("{}({})", command_variables.function_name, param_types.join(","));
+                let signature = format!("{}({})", command_variables.function.function_name, param_types.join(","));
 
                 let mut command_args = vec![String::from("send"), command_variables.contract_address, signature];
                 command_args.extend(user_values);
@@ -102,6 +92,7 @@ fn main() {
                 .args(&command_args)
                 .output()
                 .expect("Failed to execute command");
+
                 println!("{}", String::from_utf8_lossy(&write_command.stdout));
                 println!("{}", String::from_utf8_lossy(&write_command.stderr));
             }

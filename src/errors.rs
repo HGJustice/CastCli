@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub enum CliErrors {
-    SrcFoulderNotFound,
-    CouldntReadSrcFoulder,
+    SrcFolderNotFound,
+    CouldntReadSrcFolder,
     UnKnownPath,
     CantFindChainRpcUrlVariable,
     RPCUrlIsEmpty,
