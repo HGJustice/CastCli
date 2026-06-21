@@ -102,7 +102,7 @@ pub fn write_or_read(write: bool) -> Result<CommandVariables, CliErrors> {
         Ok(CommandVariables {
             contract_address: contract_address, 
             function_name: functions_list[write_function].function_name.clone(),
-            function_params: functions_list.
+            function_params: functions_list[write_function].function_params.clone(),
             rpc_url: rpc_url
         })
 }

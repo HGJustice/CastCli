@@ -78,23 +78,30 @@ fn main() {
             }
             2 => {
                 let command_variables = write_or_read(true).unwrap();
-
                 let private_key = read_env_file("PRIVATE_KEY").unwrap();
 
-                let write_command = Command::new("cast")
-                    .args([
-                        "send",
-                        &command_variables.contract_address,
-                        &format!("{}({})", command_variables.function_name, ),
-                        "--rpc-url",
-                        &command_variables.rpc_url,
-                        "--private-key",
-                        &private_key,
-                        "--broadcast",
-                    ])
-                    .output()
-                    .expect("Failed to execute command");
+                let mut param_types: Vec<String> = Vec::new();
+                let mut user_values: Vec<String> = Vec::new();
 
+                for (param_name, param_type) in &command_variables.function_params {
+                    param_types.push(param_type.clone());
+                    let val = Input::new()
+                    .with_prompt(format!("Enter value for {} ({})", param_name, param_type))
+                    .interact_text()
+                    .unwrap();
+                    user_values.push(val);
+                }
+
+                let signature = format!("{}({})", command_variables.function_name, param_types.join(","));
+
+                let mut command_args = vec![String::from("send"), command_variables.contract_address, signature];
+                command_args.extend(user_values);
+                command_args.extend(["--rpc-url".to_string(), command_variables.rpc_url, "--private-key".to_string(), private_key,]);
+
+                let write_command = Command::new("cast")
+                .args(&command_args)
+                .output()
+                .expect("Failed to execute command");
                 println!("{}", String::from_utf8_lossy(&write_command.stdout));
                 println!("{}", String::from_utf8_lossy(&write_command.stderr));
             }
