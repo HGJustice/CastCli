@@ -20,25 +20,11 @@ pub fn search_dir() -> Result<Vec<String>, CliErrors> {
 }
 
 pub fn read_env_file(varible_name: &str) -> Result<String, CliErrors> {
-    match varible_name {
-        "CHAIN_RPC_URL" => {
-            let var =  std::env::var(varible_name).map_err(|_| CliErrors::CantFindChainRpcUrlVariable)?;
-            if var.is_empty() {
-                Err(CliErrors::RPCUrlIsEmpty)
-            } else {
-                Ok(var)
-            }
-        },
-        "PRIVATE_KEY" => {
-            let var =  std::env::var(varible_name).map_err(|_| CliErrors::CantFindPrivateKeyVariable)?;
-            if var.is_empty() {
-                Err(CliErrors::PrivateKeyIsEmpty)
-            } else {
-                Ok(var)
-            }
-        }
-        _ => Err(CliErrors::UnknownVariable)
-    }
+    let val = std::env::var(varible_name).map_err(|_| CliErrors::VariableNotFound(varible_name.to_string()))?;
+    
+    if val.is_empty() { return Err(CliErrors::VariableEmpty(varible_name.to_string())) }
+
+    Ok(val)
 }
 
 pub fn read_abi(contract_name: String, write: bool) -> Result<Vec<AbiFunction>, CliErrors> {
@@ -82,7 +68,7 @@ pub fn read_abi(contract_name: String, write: bool) -> Result<Vec<AbiFunction>, 
         }
     }
     return Ok(functions)
-}
+}       
 
 pub fn write_or_read(write: bool) -> Result<CommandVariable, CliErrors> {
         let contract_address: String = Input::new()

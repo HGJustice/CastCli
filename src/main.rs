@@ -5,7 +5,7 @@ use foundry_cli::functions::*;
 use std::process::Command;
 
 #[derive(Parser)]
-#[command(name = "Wizz", version, about = "Guided Foundry CLI wrapper")]
+#[command(name = "Wizz", version = "0.0.1", about = "Guided Foundry CLI wrapper")]
 struct Cli;
 
 fn main() {

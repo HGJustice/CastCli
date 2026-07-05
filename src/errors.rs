@@ -3,9 +3,8 @@ pub enum CliErrors {
     SrcFolderNotFound,
     CouldntReadSrcFolder,
     UnKnownPath,
-    CantFindChainRpcUrlVariable,
-    RPCUrlIsEmpty,
-    CantFindPrivateKeyVariable,
+    VariableEmpty(String),
+    VariableNotFound(String),
     PrivateKeyIsEmpty,
     UnknownVariable,
 }
